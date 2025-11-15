@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Our Moments — Click to read</title>
+  <style>
+    :root{
+      --bg:#2b0008;
+      --card:#0b1220;
+      --accent:#fca311;
+      --glass:rgba(255,255,255,0.06);
+      --text:#edf2f7;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+      color:var(--text);
+      background:var(--bg);
+      /* small hearts pattern */
+      background-image:
+        radial-gradient(circle at 2px 2px, rgba(255,255,255,0.9) 1px, transparent 1px),
+        radial-gradient(circle at 9px 9px, rgba(0,0,0,0.9) 1px, transparent 1px);
+      background-size: 18px 18px;
+      padding:24px;
+    }
+    .wrap{max-width:1000px;margin:0 auto}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    header h1{font-size:1.6rem;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+    .thumb{
+      background:var(--glass);
+      border-radius:12px;
+      padding:8px;
+      cursor:pointer;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.03);
+      transition:transform .25s ease, box-shadow .25s ease, opacity .4s ease;
+      opacity:0;
+      transform:translateY(10px);
+    }
+    .thumb.show{opacity:1;transform:none}
+    .thumb:hover{transform:translateY(-6px);box-shadow:0 12px 30px rgba(0,0,0,0.5)}
+    .thumb img, .thumb video{width:100%;height:140px;object-fit:cover;border-radius:8px;display:block}
+    main{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    @media (max-width:920px){main{grid-template-columns:1fr}}
+    .viewer{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;border-radius:14px;min-height:300px;border:1px solid rgba(255,255,255,0.03);
+    }
+    .viewer h2{margin-top:0}
+    .para{opacity:0;transform:translateY(8px);transition:all .4s ease;padding:8px 0}
+    .para.show{opacity:1;transform:none}
+    .secret{
+      display:none;
+      background:#3b0f18;
+      padding:20px;border-radius:12px;margin-top:14px;
+      border:2px dashed rgba(255,255,255,0.12);
+      box-shadow:0 8px 30px rgba(0,0,0,0.6);
+      background-image:url('assets/scrap-texture.png');
+      background-size:cover;
+      transform-origin:top center;
+    }
+    /* pop-open animation applied when revealed */
+    .secret.revealed{
+      display:block;
+      animation:popOpen 700ms cubic-bezier(.2,.9,.25,1) forwards;
+      opacity:0;
+    }
+    @keyframes popOpen{
+      0%{transform:scale(.85) translateY(18px); opacity:0}
+      60%{transform:scale(1.03) translateY(-6px); opacity:1}
+      100%{transform:scale(1) translateY(0); opacity:1}
+    }
+    .controls{display:flex;gap:8px;align-items:center;margin-top:10px}
+    input[type=text]{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--text);outline:none;min-width:160px}
+    input[type=text].shake{animation:shakeAnim .45s ease}
+    button{padding:8px 12px;border-radius:8px;border:none;background:var(--accent);color:#001;cursor:pointer;font-weight:700}
+    footer{margin-top:18px;color:rgba(237,242,247,0.6);font-size:0.9rem}
+    .meta{font-size:0.9rem;color:rgba(237,242,247,0.7)}
+    .big-paragraph{font-size:1.02rem;line-height:1.5;white-space:pre-wrap}
+    .secret .emph{font-weight:800;font-style:italic}
+    .polaroid{
+      padding:10px;background:#fff;border:1px solid #eee;box-shadow:0 8px 18px rgba(0,0,0,0.4);transform:rotate(-2deg);margin:10px 0;
+    }
+    /* small visual flourishes */
+    .heart-badge{display:inline-block;margin-left:8px;font-size:1.05rem}
+    /* particles & petals */
+    .particle{position:fixed;font-size:22px;pointer-events:none;animation:particleFloat 2.8s linear forwards}
+    @keyframes particleFloat{0%{opacity:1; transform:translateY(0) scale(1)}100%{opacity:0; transform:translateY(-140px) scale(1.6)}}
+    .petal{position:fixed;width:18px;height:18px;background:url('assets/petal.png') no-repeat center/cover;pointer-events:none;opacity:0.95}
+    @keyframes petalFall{0%{transform:translateY(-10vh) rotate(0deg)}100%{transform:translateY(120vh) rotate(360deg)}}
+    /* shake for wrong attempts */
+    @keyframes shakeAnim{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+    /* small polaroid styling for secret gallery */
+    #secretGallery .thumb{background:transparent;padding:6px;border-radius:6px;border:none;box-shadow:none}
+    #secretGallery .thumb img{height:160px;border-radius:6px}
+    /* gentle header glow when unlocked */
+    .unlockedHeader{transition:text-shadow .45s ease; text-shadow:0 6px 28px rgba(252,163,17,0.14)}
+  </style>
+</head>
+<body>
+  <audio id="bgm" loop>
+    <source src="assets/mystery_of_love.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="wrap">
+    <header>
+      <h1 id="pageTitle">Our Moments — click a photo or video <span class="heart-badge">💗</span></h1>
+      <div class="meta">Click any thumbnail to reveal a little paragraph I wrote for that moment.</div>
+    </header>
+
+    <main>
+      <section>
+        <div class="grid" id="gallery"></div>
+      </section>
+
+      <aside>
+        <div class="viewer">
+          <h2 id="viewerTitle">Hello, love ❤️</h2>
+          <div id="viewerMedia" style="margin-bottom:12px;">
+            <img src="" alt="selected" id="viewerImg" style="width:100%;height:230px;object-fit:cover;border-radius:10px;display:none">
+            <video id="viewerVid" controls style="width:100%;height:230px;object-fit:cover;border-radius:10px;display:none"></video>
+          </div>
+          <div id="viewerPara" class="para big-paragraph">Click a thumbnail to read the paragraph for that moment.</div>
+
+          <div class="controls" style="margin-top:12px;">
+            <input type="text" id="secretInput" placeholder="Enter secret code" aria-label="secret code" />
+            <button id="unlockBtn" title="unlock">Unlock</button>
+            <div class="hint">(hint: the secret code is the white heart 🤍)</div>
+          </div>
+
+          <div id="secretBox" class="secret" aria-hidden="true">
+            <div class="polaroid">
+              <img src="assets/A_scrapbook-style_digital_collage_features_four_Po.png" style="width:100%;border-radius:6px;">
+            </div>
+            <div id="secretPara" class="big-paragraph" style="margin-top:6px"></div>
+            <div style="margin-top:10px;" id="secretEmph"></div>
+
+            <div id="secretGallery" class="grid" style="margin-top:18px;"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div>Customize by replacing files inside <code>assets/</code> and editing the script section.</div>
+    </footer>
+  </div>
+
+<script>
+  // ----- CONFIG -----
+  const items = [
+    { id: 'p1', type: 'image', src: 'assets/IMG_3805.jpg', title: 'Night Walk Together', text: 'This path feels like ours, lit by fairy lights and your smile.' },
+    { id: 'p2', type: 'image', src
